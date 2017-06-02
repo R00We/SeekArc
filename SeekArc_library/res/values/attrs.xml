@@ -36,6 +36,8 @@
         <attr name="arcColor" format="color" />
         <attr name="progressColor" format="color" />
         <attr name="roundEdges" format="boolean" />
+        <attr name="showClockface" format="boolean" />
+        <attr name="clockfaceFontSize" format="dimension" />
         <attr name="touchInside" format="boolean" />
         <attr name="clockwise" format="boolean" />
         <attr name="enabled" format="boolean" />

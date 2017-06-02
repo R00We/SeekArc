@@ -53,6 +53,7 @@ public class SimpleActivity extends Activity {
 	private CheckBox mClockwise;
 	private TextView mSeekArcProgress;
 	private CheckBox mEnabled;
+	private CheckBox mShowClockFace;
 
 	protected int getLayoutFile(){
 		return R.layout.holo_sample;
@@ -74,6 +75,7 @@ public class SimpleActivity extends Activity {
 		mTouchInside = (CheckBox) findViewById(R.id.touchInside);
 		mClockwise = (CheckBox) findViewById(R.id.clockwise);
 		mEnabled = (CheckBox) findViewById(R.id.enabled);
+		mShowClockFace = (CheckBox) findViewById(R.id.showClockface);
 
 		mRotation.setProgress(mSeekArc.getArcRotation());
 		mStartAngle.setProgress(mSeekArc.getStartAngle());
@@ -209,7 +211,19 @@ public class SimpleActivity extends Activity {
 				mSeekArc.invalidate();
 			}
 		});
-		
+
+		mShowClockFace.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+				mSeekArc.setShowClockface(isChecked);
+				mSeekArc.invalidate();
+			}
+		});
+
+//		mShowClockFace.setOnCheckedChangeListener((buttonView, isChecked) -> {
+//			mSeekArc.setShowClockface(isChecked);
+//			mSeekArc.invalidate();
+//		});
 	}
 	
 }

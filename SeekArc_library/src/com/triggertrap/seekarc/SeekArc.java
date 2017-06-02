@@ -32,8 +32,11 @@ import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
+
+import static com.triggertrap.seekarc.R.attr.arcColor;
 
 /**
  * 
@@ -76,6 +79,16 @@ public class SeekArc extends View {
 	 * The Width of the background arc for the SeekArc 
 	 */
 	private int mArcWidth = 2;
+
+	/**
+	 * Clock face lines width
+	 */
+	private int mClockfaceWidth = 2;
+
+	/**
+	 * Clock face font size in sp
+	 */
+	private int mClockfaceFontSize = 14;
 	
 	/**
 	 * The Angle to start drawing this Arc from
@@ -96,7 +109,12 @@ public class SeekArc extends View {
 	 * Give the SeekArc rounded edges
 	 */
 	private boolean mRoundedEdges = false;
-	
+
+	/**
+	 * Show clock face
+	 */
+	private boolean mShowClockface = true;
+
 	/**
 	 * Enable touch inside the SeekArc
 	 */
@@ -119,6 +137,7 @@ public class SeekArc extends View {
 	private RectF mArcRect = new RectF();
 	private Paint mArcPaint;
 	private Paint mProgressPaint;
+	private Paint mClockfacePaint;
 	private int mTranslateX;
 	private int mTranslateY;
 	private int mThumbXPos;
@@ -189,6 +208,7 @@ public class SeekArc extends View {
 		// Defaults, may need to link this into theme settings
 		int arcColor = res.getColor(R.color.progress_gray);
 		int progressColor = res.getColor(R.color.default_blue_light);
+		int clockfaceColor = res.getColor(R.color.clockface_gray);
 		int thumbHalfheight = 0;
 		int thumbHalfWidth = 0;
 		mThumb = res.getDrawable(R.drawable.seek_arc_control_selector);
@@ -222,8 +242,12 @@ public class SeekArc extends View {
 			mStartAngle = a.getInt(R.styleable.SeekArc_startAngle, mStartAngle);
 			mSweepAngle = a.getInt(R.styleable.SeekArc_sweepAngle, mSweepAngle);
 			mRotation = a.getInt(R.styleable.SeekArc_rotation, mRotation);
+
+			mClockfaceFontSize = (int)a.getDimension(R.styleable.SeekArc_clockfaceFontSize, mClockfaceFontSize);
+
 			mRoundedEdges = a.getBoolean(R.styleable.SeekArc_roundEdges,
 					mRoundedEdges);
+			mShowClockface = a.getBoolean(R.styleable.SeekArc_showClockface, mShowClockface);
 			mTouchInside = a.getBoolean(R.styleable.SeekArc_touchInside,
 					mTouchInside);
 			mClockwise = a.getBoolean(R.styleable.SeekArc_clockwise,
@@ -261,6 +285,20 @@ public class SeekArc extends View {
 		mProgressPaint.setStyle(Paint.Style.STROKE);
 		mProgressPaint.setStrokeWidth(mProgressWidth);
 
+
+
+		int px = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, mClockfaceFontSize, getResources().getDisplayMetrics());
+
+		Log.d(TAG, String.valueOf(mClockfaceFontSize)+" : "+ String.valueOf(px));
+
+		mClockfacePaint = new Paint();
+		mClockfacePaint.setColor(clockfaceColor);
+		mClockfacePaint.setAntiAlias(true);
+		mClockfacePaint.setStyle(Paint.Style.FILL_AND_STROKE);
+		mClockfacePaint.setStrokeWidth(mClockfaceWidth);
+		mClockfacePaint.setTextSize(mClockfaceFontSize);
+
+
 		if (mRoundedEdges) {
 			mArcPaint.setStrokeCap(Paint.Cap.ROUND);
 			mProgressPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -279,6 +317,20 @@ public class SeekArc extends View {
 		canvas.drawArc(mArcRect, arcStart, arcSweep, false, mArcPaint);
 		canvas.drawArc(mArcRect, arcStart, mProgressSweep, false,
 				mProgressPaint);
+
+		if (mShowClockface) {
+			float x, y, xpos, ypos;
+
+			x = mArcRect.centerX() - 20;
+			y = mArcRect.centerY() + 10;
+
+			for (int i = 0; i < 12; i++) {
+				xpos = (float) ((mArcRadius + 40 ) * Math.cos(Math.toRadians(arcStart + 30*i)));
+				ypos = (float) ((mArcRadius + 40 )* Math.sin(Math.toRadians(arcStart + 30*i)));
+
+				canvas.drawText(String.valueOf(i * 5), x + xpos, y + ypos, mClockfacePaint);
+			}
+		}
 
 		if(mEnabled) {
 			// Draw the thumb nail
@@ -556,6 +608,11 @@ public class SeekArc extends View {
 
 	public void setEnabled(boolean enabled) {
 		this.mEnabled = enabled;
+	}
+
+	public void setShowClockface(boolean show)
+	{
+		this.mShowClockface = show;
 	}
 
 	public int getProgressColor() {
