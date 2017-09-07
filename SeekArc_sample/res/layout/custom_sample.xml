@@ -42,12 +42,13 @@
         <com.triggertrap.seekarc.SeekArc
             android:id="@+id/seekArc"
             android:layout_width="425dp"
-            android:layout_height="254dp"
+            android:layout_height="225dp"
             android:layout_gravity="center"
             android:padding="30dp"
             seekarc:arcColor="@color/dark_red"
             seekarc:clockwise="true"
-            seekarc:max="60"
+            seekarc:progressMax="60"
+            seekarc:progressMin="10"
             seekarc:progressColor="@color/red"
             seekarc:rotation="180"
             seekarc:startAngle="0"
@@ -69,6 +70,6 @@
     <include
         android:id="@+id/controls"
         layout="@layout/controls"
-        android:layout_height="459dp" />
+        android:layout_height="459dp"/>
 
 </LinearLayout>

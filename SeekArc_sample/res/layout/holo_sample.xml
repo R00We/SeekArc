@@ -48,9 +48,7 @@
             seekarc:rotation="180"
             seekarc:startAngle="30"
             seekarc:sweepAngle="300"
-            seekarc:touchInside="true"
-
-            />
+            seekarc:touchInside="true"/>
 
         <TextView
             android:id="@+id/seekArcProgress"
