@@ -36,8 +36,6 @@ import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.View;
 
-import static com.triggertrap.seekarc.R.attr.arcColor;
-
 /**
  * 
  * SeekArc.java
@@ -63,12 +61,14 @@ public class SeekArc extends View {
 	/**
 	 * The Maximum value that this SeekArc can be set to
 	 */
-	private int mMax = 100;
+	private int mProgressMax = 100;
 	
 	/**
 	 * The Current value that the SeekArc is set to
 	 */
 	private int mProgress = 0;
+
+	private int mProgressMin = 0;
 		
 	/**
 	 * The width of the progress line for this SeekArc
@@ -226,6 +226,7 @@ public class SeekArc extends View {
 				mThumb = thumb;
 			}
 
+			a.getString(R.styleable.SeekArc_clockStyle);
 			
 			
 			thumbHalfheight = (int) mThumb.getIntrinsicHeight() / 2;
@@ -233,8 +234,9 @@ public class SeekArc extends View {
 			mThumb.setBounds(-thumbHalfWidth, -thumbHalfheight, thumbHalfWidth,
 					thumbHalfheight);
 
-			mMax = a.getInteger(R.styleable.SeekArc_max, mMax);
+			mProgressMax = a.getInteger(R.styleable.SeekArc_progressMax, mProgressMax);
 			mProgress = a.getInteger(R.styleable.SeekArc_progress, mProgress);
+			mProgressMin = a.getInteger(R.styleable.SeekArc_progressMin, mProgressMin);
 			mProgressWidth = (int) a.getDimension(
 					R.styleable.SeekArc_progressWidth, mProgressWidth);
 			mArcWidth = (int) a.getDimension(R.styleable.SeekArc_arcWidth,
@@ -261,13 +263,13 @@ public class SeekArc extends View {
 			a.recycle();
 		}
 
-		mProgress = (mProgress > mMax) ? mMax : mProgress;
-		mProgress = (mProgress < 0) ? 0 : mProgress;
+		mProgress = (mProgress > mProgressMax) ? mProgressMax : mProgress;
+		mProgress = (mProgress < mProgressMin) ? mProgressMin : mProgress;
 
 		mSweepAngle = (mSweepAngle > 360) ? 360 : mSweepAngle;
 		mSweepAngle = (mSweepAngle < 0) ? 0 : mSweepAngle;
 
-		mProgressSweep = (float) mProgress / mMax * mSweepAngle;
+		mProgressSweep = (float) mProgress / mProgressMax * mSweepAngle;
 
 		mStartAngle = (mStartAngle > 360) ? 0 : mStartAngle;
 		mStartAngle = (mStartAngle < 0) ? 0 : mStartAngle;
@@ -463,13 +465,13 @@ public class SeekArc extends View {
 
 		touchProgress = (touchProgress < 0) ? INVALID_PROGRESS_VALUE
 				: touchProgress;
-		touchProgress = (touchProgress > mMax) ? INVALID_PROGRESS_VALUE
+		touchProgress = (touchProgress > mProgressMax) ? INVALID_PROGRESS_VALUE
 				: touchProgress;
 		return touchProgress;
 	}
 
 	private float valuePerDegree() {
-		return (float) mMax / mSweepAngle;
+		return (float) mProgressMax / mSweepAngle;
 	}
 
 	private void onProgressRefresh(int progress, boolean fromUser) {
@@ -488,8 +490,8 @@ public class SeekArc extends View {
 			return;
 		}
 
-		progress = (progress > mMax) ? mMax : progress;
-		progress = (progress < 0) ? 0 : progress;
+		progress = (progress > mProgressMax) ? mProgressMax : progress;
+		progress = (progress < mProgressMin) ? mProgressMin : progress;
 		mProgress = progress;
 
 		if (mOnSeekArcChangeListener != null) {
@@ -497,7 +499,7 @@ public class SeekArc extends View {
 					.onProgressChanged(this, progress, fromUser);
 		}
 
-		mProgressSweep = (float) progress / mMax * mSweepAngle;
+		mProgressSweep = (float) progress / mProgressMax * mSweepAngle;
 
 		updateThumbPosition();
 
@@ -516,6 +518,7 @@ public class SeekArc extends View {
 	 */
 	public void setOnSeekArcChangeListener(OnSeekArcChangeListener l) {
 		mOnSeekArcChangeListener = l;
+		setProgress(mProgress);
 	}
 
 	public void setProgress(int progress) {
@@ -634,10 +637,10 @@ public class SeekArc extends View {
 	}
 
 	public int getMax() {
-		return mMax;
+		return mProgressMax;
 	}
 
 	public void setMax(int mMax) {
-		this.mMax = mMax;
+		this.mProgressMax = mMax;
 	}
 }
