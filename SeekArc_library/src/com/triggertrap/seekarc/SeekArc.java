@@ -491,7 +491,10 @@ public class SeekArc extends View {
 		}
 
 		progress = (progress > mProgressMax) ? mProgressMax : progress;
-		progress = (progress < mProgressMin) ? mProgressMin : progress;
+
+		if (fromUser) {
+			progress = (progress < mProgressMin) ? mProgressMin : progress;
+		}
 		mProgress = progress;
 
 		if (mOnSeekArcChangeListener != null) {
