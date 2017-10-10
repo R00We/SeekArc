@@ -131,6 +131,10 @@ public class SeekArc extends View {
  	 */
 	private boolean mEnabled = true;
 
+	private boolean isLeapEnabled = true;
+
+	private final int mLeapProgressValue = 360;
+
 	// Internal variables
 	private int mArcRadius = 0;
 	private float mProgressSweep = 0;
@@ -430,7 +434,13 @@ public class SeekArc extends View {
 		setPressed(true);
 		mTouchAngle = getTouchDegrees(event.getX(), event.getY());
 		int progress = getProgressForAngle(mTouchAngle);
-		onProgressRefresh(progress, true);
+		if (enableChange(event, progress)) {
+			onProgressRefresh(progress, true);
+		}
+	}
+
+	private boolean enableChange(MotionEvent event, int progress) {
+		return !isLeapEnabled && event.getAction() == MotionEvent.ACTION_MOVE && Math.abs(mProgress - progress) > mLeapProgressValue;
 	}
 
 	private boolean ignoreTouch(float xPos, float yPos) {
@@ -614,6 +624,10 @@ public class SeekArc extends View {
 
 	public void setEnabled(boolean enabled) {
 		this.mEnabled = enabled;
+	}
+
+	public void setLeapEnabled(boolean leapEnabled) {
+		isLeapEnabled = leapEnabled;
 	}
 
 	public void setShowClockface(boolean show)
