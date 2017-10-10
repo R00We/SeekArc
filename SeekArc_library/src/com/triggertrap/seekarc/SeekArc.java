@@ -133,7 +133,9 @@ public class SeekArc extends View {
 
 	private boolean isLeapEnabled = true;
 
-	private final int mLeapProgressValue = 360;
+	private boolean touchInProgress = false;
+
+	private final int mLeapProgressValue = 50;
 
 	// Internal variables
 	private int mArcRadius = 0;
@@ -386,14 +388,17 @@ public class SeekArc extends View {
 					updateOnTouch(event);
 					break;
 				case MotionEvent.ACTION_MOVE:
+					touchInProgress = true;
 					updateOnTouch(event);
 					break;
 				case MotionEvent.ACTION_UP:
+					touchInProgress = false;
 					onStopTrackingTouch();
 					setPressed(false);
 					this.getParent().requestDisallowInterceptTouchEvent(false);
 					break;
 				case MotionEvent.ACTION_CANCEL:
+					touchInProgress = false;
 					onStopTrackingTouch();
 					setPressed(false);
 					this.getParent().requestDisallowInterceptTouchEvent(false);
@@ -434,13 +439,22 @@ public class SeekArc extends View {
 		setPressed(true);
 		mTouchAngle = getTouchDegrees(event.getX(), event.getY());
 		int progress = getProgressForAngle(mTouchAngle);
-		if (enableChange(event, progress)) {
-			onProgressRefresh(progress, true);
+		if (!enableChange(progress)) {
+			progress = getCorrectedProgress();
+		}
+		onProgressRefresh(progress, true);
+	}
+
+	public int getCorrectedProgress() {
+		if (mProgress > (mProgressMax * 0.9f)) {
+			return mProgressMax;
+		} else {
+			return mProgressMin;
 		}
 	}
 
-	private boolean enableChange(MotionEvent event, int progress) {
-		return !isLeapEnabled && event.getAction() == MotionEvent.ACTION_MOVE && Math.abs(mProgress - progress) > mLeapProgressValue;
+	private boolean enableChange(int progress) {
+		return isLeapEnabled || !touchInProgress || Math.abs(mProgress - progress) < mLeapProgressValue;
 	}
 
 	private boolean ignoreTouch(float xPos, float yPos) {
