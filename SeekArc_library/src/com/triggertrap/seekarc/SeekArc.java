@@ -193,7 +193,7 @@ public class SeekArc extends View {
 		 */
 		void onStopTrackingTouch(SeekArc seekArc);
 
-		void onTrackingLeap(SeekArc seekArc);
+		boolean onTrackingLeap(SeekArc seekArc, boolean isRising);
 	}
 
 	public SeekArc(Context context) {
@@ -339,8 +339,8 @@ public class SeekArc extends View {
 			y = mArcRect.centerY() + 10;
 
 			for (int i = 0; i < 12; i++) {
-				xpos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.cos(Math.toRadians(arcStart + 30*i + 2)));
-				ypos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.sin(Math.toRadians(arcStart + 30*i + 2)));
+				xpos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.cos(Math.toRadians(arcStart + 30 * i)));
+				ypos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.sin(Math.toRadians(arcStart + 30 * i)));
 
 				canvas.drawText(String.valueOf(i * 5), x + xpos, y + ypos, mClockfacePaint);
 			}
@@ -446,18 +446,18 @@ public class SeekArc extends View {
 		mTouchAngle = getTouchDegrees(event.getX(), event.getY());
 		int progress = getProgressForAngle(mTouchAngle);
 		if (leapProgress(progress)) {
-			if (!isLeapEnabled) {
+			if (!(isLeapEnabled && onTrackingLeap((progress - mProgress) < 0))) {
 				progress = getCorrectedProgress();
-			} else {
-				onTrackingLeap();
 			}
 		}
 		onProgressRefresh(progress, true);
 	}
 
-	private void onTrackingLeap() {
+	private boolean onTrackingLeap(boolean rising) {
 		if (mOnSeekArcChangeListener != null) {
-			mOnSeekArcChangeListener.onTrackingLeap(this);
+			return mOnSeekArcChangeListener.onTrackingLeap(this, rising);
+		} else {
+			return true;
 		}
 	}
 
