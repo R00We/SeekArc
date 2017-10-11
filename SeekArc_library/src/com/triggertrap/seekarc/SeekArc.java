@@ -30,6 +30,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
@@ -83,7 +84,7 @@ public class SeekArc extends View {
 	/**
 	 * Clock face lines width
 	 */
-	private int mClockfaceWidth = 2;
+	private int mClockfaceWidth = 1;
 
 	/**
 	 * Clock face font size in sp
@@ -133,9 +134,11 @@ public class SeekArc extends View {
 
 	private boolean isLeapEnabled = true;
 
-	private boolean touchInProgress = false;
+	private boolean mTouchInProgress = false;
 
-	private final int mLeapProgressValue = 50;
+	private float mLeapProgressValue;
+
+	private int mClockfaceSide = 1;
 
 	// Internal variables
 	private int mArcRadius = 0;
@@ -150,6 +153,7 @@ public class SeekArc extends View {
 	private int mThumbYPos;
 	private double mTouchAngle;
 	private float mTouchIgnoreRadius;
+	@Nullable
 	private OnSeekArcChangeListener mOnSeekArcChangeListener;
 
 	public interface OnSeekArcChangeListener {
@@ -188,6 +192,8 @@ public class SeekArc extends View {
 		 *            The SeekArc in which the touch gesture began
 		 */
 		void onStopTrackingTouch(SeekArc seekArc);
+
+		void onTrackingLeap(SeekArc seekArc);
 	}
 
 	public SeekArc(Context context) {
@@ -240,7 +246,7 @@ public class SeekArc extends View {
 			mThumb.setBounds(-thumbHalfWidth, -thumbHalfheight, thumbHalfWidth,
 					thumbHalfheight);
 
-			mProgressMax = a.getInteger(R.styleable.SeekArc_progressMax, mProgressMax);
+			setMax(a.getInteger(R.styleable.SeekArc_progressMax, mProgressMax));
 			mProgress = a.getInteger(R.styleable.SeekArc_progress, mProgress);
 			mProgressMin = a.getInteger(R.styleable.SeekArc_progressMin, mProgressMin);
 			mProgressWidth = (int) a.getDimension(
@@ -333,8 +339,8 @@ public class SeekArc extends View {
 			y = mArcRect.centerY() + 10;
 
 			for (int i = 0; i < 12; i++) {
-				xpos = (float) ((mArcRadius + 40 ) * Math.cos(Math.toRadians(arcStart + 30*i)));
-				ypos = (float) ((mArcRadius + 40 )* Math.sin(Math.toRadians(arcStart + 30*i)));
+				xpos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.cos(Math.toRadians(arcStart + 30*i + 2)));
+				ypos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.sin(Math.toRadians(arcStart + 30*i + 2)));
 
 				canvas.drawText(String.valueOf(i * 5), x + xpos, y + ypos, mClockfacePaint);
 			}
@@ -388,17 +394,17 @@ public class SeekArc extends View {
 					updateOnTouch(event);
 					break;
 				case MotionEvent.ACTION_MOVE:
-					touchInProgress = true;
+					mTouchInProgress = true;
 					updateOnTouch(event);
 					break;
 				case MotionEvent.ACTION_UP:
-					touchInProgress = false;
+					mTouchInProgress = false;
 					onStopTrackingTouch();
 					setPressed(false);
 					this.getParent().requestDisallowInterceptTouchEvent(false);
 					break;
 				case MotionEvent.ACTION_CANCEL:
-					touchInProgress = false;
+					mTouchInProgress = false;
 					onStopTrackingTouch();
 					setPressed(false);
 					this.getParent().requestDisallowInterceptTouchEvent(false);
@@ -439,10 +445,20 @@ public class SeekArc extends View {
 		setPressed(true);
 		mTouchAngle = getTouchDegrees(event.getX(), event.getY());
 		int progress = getProgressForAngle(mTouchAngle);
-		if (!enableChange(progress)) {
-			progress = getCorrectedProgress();
+		if (leapProgress(progress)) {
+			if (!isLeapEnabled) {
+				progress = getCorrectedProgress();
+			} else {
+				onTrackingLeap();
+			}
 		}
 		onProgressRefresh(progress, true);
+	}
+
+	private void onTrackingLeap() {
+		if (mOnSeekArcChangeListener != null) {
+			mOnSeekArcChangeListener.onTrackingLeap(this);
+		}
 	}
 
 	public int getCorrectedProgress() {
@@ -453,8 +469,8 @@ public class SeekArc extends View {
 		}
 	}
 
-	private boolean enableChange(int progress) {
-		return isLeapEnabled || !touchInProgress || Math.abs(mProgress - progress) < mLeapProgressValue;
+	private boolean leapProgress(int progress) {
+		return mTouchInProgress && Math.abs(mProgress - progress) > mLeapProgressValue;
 	}
 
 	private boolean ignoreTouch(float xPos, float yPos) {
@@ -644,9 +660,10 @@ public class SeekArc extends View {
 		isLeapEnabled = leapEnabled;
 	}
 
-	public void setShowClockface(boolean show)
+	public void setShowClockface(boolean show, boolean outside)
 	{
 		this.mShowClockface = show;
+		mClockfaceSide = outside ? 1 : -1;
 	}
 
 	public int getProgressColor() {
@@ -667,11 +684,16 @@ public class SeekArc extends View {
 		invalidate();
 	}
 
+	public int getArcRadius() {
+		return mArcRadius;
+	}
+
 	public int getMax() {
 		return mProgressMax;
 	}
 
 	public void setMax(int mMax) {
 		this.mProgressMax = mMax;
+		mLeapProgressValue = 0.5f * mMax;
 	}
 }

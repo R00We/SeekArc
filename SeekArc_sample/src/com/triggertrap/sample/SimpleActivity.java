@@ -98,6 +98,11 @@ public class SimpleActivity extends Activity {
 										  boolean fromUser) {
 				mSeekArcProgress.setText(String.valueOf(progress));
 			}
+
+			@Override
+			public void onTrackingLeap(SeekArc seekArc) {
+
+			}
 		});
 			
 		mRotation.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
@@ -215,7 +220,7 @@ public class SimpleActivity extends Activity {
 		mShowClockFace.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mSeekArc.setShowClockface(isChecked);
+				mSeekArc.setShowClockface(isChecked, true);
 				mSeekArc.invalidate();
 			}
 		});
