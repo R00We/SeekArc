@@ -28,6 +28,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.Nullable;
@@ -84,7 +85,11 @@ public class SeekArc extends View {
 	/**
 	 * Clock face lines width
 	 */
-	private int mClockfaceWidth = 1;
+	private float mClockfaceWidth = 1;
+
+	private int mClockfacePadding = 40;
+
+	private Rect mClockfaceRect = new Rect();
 
 	/**
 	 * Clock face font size in sp
@@ -262,6 +267,13 @@ public class SeekArc extends View {
 			mRoundedEdges = a.getBoolean(R.styleable.SeekArc_roundEdges,
 					mRoundedEdges);
 			mShowClockface = a.getBoolean(R.styleable.SeekArc_showClockface, mShowClockface);
+
+			mClockfaceWidth = a.getFloat(R.styleable.SeekArc_clockfaceFontThickness, mClockfaceWidth);
+
+			mClockfacePadding = a.getDimensionPixelSize(R.styleable.SeekArc_clockfaceFontThickness, mClockfacePadding);
+
+			clockfaceColor = a.getColor(R.styleable.SeekArc_clockfaceFontColor, clockfaceColor);
+
 			mTouchInside = a.getBoolean(R.styleable.SeekArc_touchInside,
 					mTouchInside);
 			mClockwise = a.getBoolean(R.styleable.SeekArc_clockwise,
@@ -333,16 +345,16 @@ public class SeekArc extends View {
 				mProgressPaint);
 
 		if (mShowClockface) {
-			float x, y, xpos, ypos;
-
-			x = mArcRect.centerX() - 20;
-			y = mArcRect.centerY() + 10;
-
 			for (int i = 0; i < 12; i++) {
-				xpos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.cos(Math.toRadians(arcStart + 30 * i)));
-				ypos = (float) ((mArcRadius + (40 * mClockfaceSide)) * Math.sin(Math.toRadians(arcStart + 30 * i)));
-
-				canvas.drawText(String.valueOf(i * 5), x + xpos, y + ypos, mClockfacePaint);
+				String number = String.valueOf(i * 5);
+				mClockfacePaint.getTextBounds(number, 0, number.length(), mClockfaceRect);
+				double angle = Math.PI / 6 * (i - 3);
+				int radius = mArcRadius + (mClockfaceSide == 1 ? mClockfacePadding : mClockfacePadding * -1);
+				int width = mClockfaceSide == 1 ? getMeasuredWidth() : mArcRadius;
+				int height = mClockfaceSide == 1 ? getMeasuredHeight() : mArcRadius;
+				int x = (int) (width / 2 + Math.cos(angle) * radius - mClockfaceRect.width() / 2);
+				int y = (int) (height / 2 + Math.sin(angle) * radius + mClockfaceRect.height() / 2);
+				canvas.drawText(number, x, y, mClockfacePaint);
 			}
 		}
 
@@ -369,7 +381,7 @@ public class SeekArc extends View {
 		mTranslateX = (int) (width * 0.5f);
 		mTranslateY = (int) (height * 0.5f);
 		
-		arcDiameter = min - getPaddingLeft();
+		arcDiameter = min - getPaddingLeft() - ((mShowClockface && mClockfaceSide == 1) ? mClockfacePadding : 0);
 		mArcRadius = arcDiameter / 2;
 		top = height / 2 - (arcDiameter / 2);
 		left = width / 2 - (arcDiameter / 2);
