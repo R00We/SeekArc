@@ -348,10 +348,11 @@ public class SeekArc extends View {
 			for (int i = 0; i < 12; i++) {
 				String number = String.valueOf(i * 5);
 				mClockfacePaint.getTextBounds(number, 0, number.length(), mClockfaceRect);
+				mClockfacePaint.setTextAlign(Paint.Align.CENTER);
 				double angle = Math.PI / 6 * (i - 3);
-				int radius = mArcRadius + (mClockfaceSide == 1 ? mClockfacePadding : mClockfacePadding * -1);
-				int width = mClockfaceSide == 1 ? getMeasuredWidth() : mArcRadius;
-				int height = mClockfaceSide == 1 ? getMeasuredHeight() : mArcRadius;
+				int radius = mArcRadius + (mClockfaceSide == 1 ? mClockfacePadding : (mClockfacePadding * -1));
+				int width = mClockfaceSide == 1 ? (mArcRadius + mClockfacePadding) * 2 : (mArcRadius - mClockfacePadding) * 2;
+				int height = mClockfaceSide == 1 ? (mArcRadius + mClockfacePadding) * 2 : (mArcRadius - mClockfacePadding) * 2;
 				int x = (int) (width / 2 + Math.cos(angle) * radius - mClockfaceRect.width() / 2);
 				int y = (int) (height / 2 + Math.sin(angle) * radius + mClockfaceRect.height() / 2);
 				canvas.drawText(number, x, y, mClockfacePaint);
@@ -381,7 +382,7 @@ public class SeekArc extends View {
 		mTranslateX = (int) (width * 0.5f);
 		mTranslateY = (int) (height * 0.5f);
 		
-		arcDiameter = min - getPaddingLeft() - ((mShowClockface && mClockfaceSide == 1) ? mClockfacePadding : 0);
+		arcDiameter = min - getPaddingLeft() - ((mShowClockface && mClockfaceSide == 1) ? mClockfacePadding * 2 : 0);
 		mArcRadius = arcDiameter / 2;
 		top = height / 2 - (arcDiameter / 2);
 		left = width / 2 - (arcDiameter / 2);

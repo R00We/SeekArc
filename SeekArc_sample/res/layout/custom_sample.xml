@@ -41,8 +41,8 @@
 
         <com.triggertrap.seekarc.SeekArc
             android:id="@+id/seekArc"
-            android:layout_width="425dp"
-            android:layout_height="225dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:padding="30dp"
             seekarc:arcColor="@color/dark_red"
@@ -51,6 +51,9 @@
             seekarc:progressMin="10"
             seekarc:progressColor="@color/red"
             seekarc:rotation="180"
+            seekarc:clockfaceFontColor="@color/red"
+            seekarc:clockfaceFontThickness="0.4"
+            seekarc:clockfacePadding="20dp"
             seekarc:startAngle="0"
             seekarc:sweepAngle="360"
             seekarc:clockfaceFontSize="14sp"
