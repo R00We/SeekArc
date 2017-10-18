@@ -270,7 +270,7 @@ public class SeekArc extends View {
 
 			mClockfaceWidth = a.getFloat(R.styleable.SeekArc_clockfaceFontThickness, mClockfaceWidth);
 
-			mClockfacePadding = a.getDimensionPixelSize(R.styleable.SeekArc_clockfaceFontThickness, mClockfacePadding);
+			mClockfacePadding = a.getDimensionPixelSize(R.styleable.SeekArc_clockfacePadding, mClockfacePadding);
 
 			clockfaceColor = a.getColor(R.styleable.SeekArc_clockfaceFontColor, clockfaceColor);
 
