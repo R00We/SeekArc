@@ -214,7 +214,7 @@ public class SeekArc extends View {
 	private void init(Context context, AttributeSet attrs, int defStyle) {
 
 		Log.d(TAG, "Initialising SeekArc");
-		final Resources res = getResources();
+		final Resources res = context.getResources();
 		float density = context.getResources().getDisplayMetrics().density;
 
 		// Defaults, may need to link this into theme settings
