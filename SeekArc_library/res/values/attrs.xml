@@ -38,7 +38,10 @@
         <attr name="progressColor" format="color" />
         <attr name="roundEdges" format="boolean" />
         <attr name="showClockface" format="boolean" />
+        <attr name="clockfacePadding" format="dimension" />
         <attr name="clockfaceFontSize" format="dimension" />
+        <attr name="clockfaceFontColor" format="color" />
+        <attr name="clockfaceFontThickness" format="float" />
         <attr name="touchInside" format="boolean" />
         <attr name="clockwise" format="boolean" />
         <attr name="enabled" format="boolean" />

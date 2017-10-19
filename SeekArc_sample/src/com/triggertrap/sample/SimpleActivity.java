@@ -25,6 +25,7 @@ package com.triggertrap.sample;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.SeekBar;
@@ -55,6 +56,8 @@ public class SimpleActivity extends Activity {
 	private CheckBox mEnabled;
 	private CheckBox mShowClockFace;
 
+	private int mLap;
+
 	protected int getLayoutFile(){
 		return R.layout.holo_sample;
 	}
@@ -82,7 +85,7 @@ public class SimpleActivity extends Activity {
 		mSweepAngle.setProgress(mSeekArc.getSweepAngle());
 		mArcWidth.setProgress(mSeekArc.getArcWidth());
 		mProgressWidth.setProgress(mSeekArc.getProgressWidth());
-		
+
 		mSeekArc.setOnSeekArcChangeListener(new OnSeekArcChangeListener() {
 
 			@Override
@@ -98,7 +101,22 @@ public class SimpleActivity extends Activity {
 										  boolean fromUser) {
 				mSeekArcProgress.setText(String.valueOf(progress));
 			}
-		});
+
+            @Override
+            public boolean onTrackingLeap(SeekArc seekArc, boolean isRising) {
+                if (isRising) {
+					mSeekArc.setProgressWidth(mSeekArc.getProgressWidth() + 1);
+					mLap++;
+					return true;
+                } else  if (mLap > 0) {
+					mSeekArc.setProgressWidth(mSeekArc.getProgressWidth() - 1);
+					mLap--;
+					return true;
+                } else {
+					return false;
+				}
+            }
+        });
 			
 		mRotation.setOnSeekBarChangeListener(new OnSeekBarChangeListener() {
 			@Override
@@ -215,7 +233,7 @@ public class SimpleActivity extends Activity {
 		mShowClockFace.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-				mSeekArc.setShowClockface(isChecked);
+				mSeekArc.setShowClockface(isChecked, false);
 				mSeekArc.invalidate();
 			}
 		});
